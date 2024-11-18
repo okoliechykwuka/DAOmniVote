@@ -118,7 +118,7 @@ def execute(context: ExecuteContext, req: ExecuteRequestBody) -> ExecuteResponse
             response_text += "\n" + voting_system.get_menu()
         elif choice == "2":
             redis_client.set(f"state:{session_id}", "awaiting_proposal")
-            response_text = "Enter proposal ID:"
+            response_text = f"Enter proposal ID: {voting_system.latest_proposal}"
             return context.new_response(
                 blocks=[TextItemBlock(text=response_text)],
                 cost=TheoriqCost(amount=1, currency=Currency.USDC),

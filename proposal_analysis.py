@@ -1,7 +1,8 @@
 #proposal_analysis.py
 import os
 import logging
-from openai import OpenAI
+# from openai import OpenAI
+import anthropic
 from dotenv import load_dotenv
 from web3 import Web3
 import json
@@ -14,7 +15,9 @@ class ProposalAnalyzer:
         load_dotenv()
         
         # Initialize OpenAI client
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # Set up Anthropic client
+        self.client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
         
         # Initialize Web3 and contract (read-only operations)
         self.web3 = Web3(Web3.HTTPProvider(os.getenv("INFURA_URL")))
@@ -35,18 +38,32 @@ class ProposalAnalyzer:
         
         logger.info(f"Wallet balance: {self.wallet_balance} ETH")
     
-    def chat_with_openai_conversational(self, prompt):
+    def chat_model(self, prompt):
         # logger.info(f"Sending prompt to OpenAI: {prompt}")
         
+        # try:
+        #     completion = self.client.chat.completions.create(
+        #         model="gpt-4o-mini",
+        #         messages=[{"role": "user", "content": prompt}]
+        #     )
+        #     return completion.choices[0].message.content
+        # except Exception as e:
+        #     logger.error(f"Error communicating with OpenAI: {str(e)}")
+        #     return "Error communicating with OpenAI."
+        
         try:
-            completion = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}]
+            response = self.client.messages.create(
+                model="claude-3-haiku-20240307",
+                max_tokens=500,
+                temperature=0.8,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
             )
-            return completion.choices[0].message.content
+            return response.content[0].text.strip()
         except Exception as e:
-            logger.error(f"Error communicating with OpenAI: {str(e)}")
-            return "Error communicating with OpenAI."
+            logger.error(f"Error communicating with Anthropic: {str(e)}")
+            return "Error communicating with Anthropic."
 
     def evaluate_proposal(self, proposal):
         """Evaluate a single proposal based on various metrics"""
@@ -155,7 +172,7 @@ class ProposalAnalyzer:
             3. Recommendations for improving participation
             """
 
-            analysis_response = self.chat_with_openai_conversational(prompt)
+            analysis_response = self.chat_model(prompt)
             return analysis_response
 
         except Exception as e:
