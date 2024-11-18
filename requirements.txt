@@ -1,6 +1,11 @@
 web3==7.5.0
 python-dotenv==1.0.1
-openai==1.54.3
+git+https://${GITHUB_TOKEN}@github.com/chain-ml/theoriq-agent-sdk.git#egg=theoriq[flask]
+flask==3.0.*
+openai
+gunicorn
+redis==5.1.1
+anthropic
 # eth-account== 0.13.4
 # eth-typing==3.5.1
 # eth-utils==2.3.1
