@@ -60,7 +60,7 @@ def generate_session_token():
 
 def get_session_token(context: ExecuteContext):
     """Get or create a session token for the current user."""
-    session_key = f"session:{context.agent_address}"
+    session_key = f"session:{context.request_sender_address}"
     session_token = redis_client.get(session_key)
     if not session_token:
         session_token = generate_session_token()
@@ -78,6 +78,7 @@ def execute(context: ExecuteContext, req: ExecuteRequestBody) -> ExecuteResponse
     
     # Get session state
     session_id = get_session_token(context)
+    
     session_state = redis_client.get(f"state:{session_id}")
     wallet_address = voting_system.get_wallet_address(session_id)
     
@@ -133,7 +134,7 @@ def execute(context: ExecuteContext, req: ExecuteRequestBody) -> ExecuteResponse
             response_text += "\n" + voting_system.get_menu()
         elif choice == "2":
             redis_client.set(f"state:{session_id}", "awaiting_proposal")
-            response_text = f"Enter proposal ID: {voting_system.latest_proposal}"
+            response_text = "Enter proposal ID: "
             return context.new_response(
                 blocks=[TextItemBlock(text=response_text)],
                 cost=TheoriqCost(amount=1, currency=Currency.USDC),

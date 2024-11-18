@@ -24,7 +24,6 @@ class VotingSystem:
             contract_address=os.getenv("CONTRACT_ADDRESS")
         )
         
-        self.latest_proposal = None
     
     def get_wallet_address(self, session_id: str) -> Optional[str]:
         """Get wallet address from Redis session"""
@@ -91,7 +90,6 @@ class VotingSystem:
             output.append(f"Total 'Against' votes: {user_stats.get(b'against', b'0').decode('utf-8')}\n")
             output.append(f"Total 'Abstain' votes: {user_stats.get(b'abstain', b'0').decode('utf-8')}\n")
             
-            self.latest_proposal = str(list(latest_proposals))
             return "\n".join(output)
                 
         except Exception as e:
