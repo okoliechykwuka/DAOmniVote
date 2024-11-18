@@ -26,6 +26,21 @@ redis_client = redis.Redis(
 
 # Initialize VotingSystem
 voting_system = VotingSystem(redis_client)
+
+def create_app():
+    """Create and configure the Flask application"""
+    app = Flask(__name__)
+    
+    # Load agent configuration from env
+    dotenv.load_dotenv()
+    agent_config = AgentConfig.from_env()
+    
+    # Create and register theoriq blueprint
+    blueprint = theoriq_blueprint(agent_config, execute)
+    app.register_blueprint(blueprint)
+    
+    return app
+
 def is_new_session_request(current_state, user_input):
     """
     Checks if the user input indicates the start of a new DAO Voting session.
@@ -188,17 +203,10 @@ def execute(context: ExecuteContext, req: ExecuteRequestBody) -> ExecuteResponse
         cost=TheoriqCost(amount=1, currency=Currency.USDC),
     )
 
+# Create the Flask application instance
+app = create_app()
+
 if __name__ == "__main__":
-    app = Flask(__name__)
-    
-    # Load agent configuration from env
-    dotenv.load_dotenv()
-    agent_config = AgentConfig.from_env()
-    
-    # Create and register theoriq blueprint
-    blueprint = theoriq_blueprint(agent_config, execute)
-    app.register_blueprint(blueprint)
-    
     print("Starting Flask server...", flush=True)
     app.run(host="0.0.0.0", port=8000, debug=True)
 
