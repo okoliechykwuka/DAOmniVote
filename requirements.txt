@@ -1,0 +1,6 @@
+web3==7.5.0
+python-dotenv==1.0.1
+openai==1.54.3
+# eth-account== 0.13.4
+# eth-typing==3.5.1
+# eth-utils==2.3.1
